@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  HiOutlineX, 
-  HiOutlinePlus, 
+import {
+  HiOutlineX,
+  HiOutlinePlus,
   HiOutlineSearch,
-  HiOutlineFilter,
   HiOutlineUsers,
   HiOutlineChat,
   HiOutlineUserGroup
@@ -11,13 +10,12 @@ import {
 import { motion } from 'framer-motion';
 import { useChat } from '../../contexts/ChatContext';
 import { useAuth } from '../../contexts/AuthContext';
-import { 
-  formatChatTime, 
-  getChatDisplayName, 
-  getChatDisplayAvatar, 
+import {
+  formatChatTime,
+  getChatDisplayName,
+  getChatDisplayAvatar,
   getLastMessagePreview,
-  generateAvatarUrl,
-  truncateText
+  generateAvatarUrl
 } from '../../utils/helpers';
 import { isMobile } from '../../utils/helpers';
 import { usersAPI } from '../../services/api';
@@ -113,7 +111,7 @@ const Sidebar = ({ onClose, isOpen }) => {
   const [groupLoading, setGroupLoading] = useState(false);
   const [groupError, setGroupError] = useState('');
   const { user } = useAuth();
-  const { createChat, setCreateChat } = useChat();
+  const { createChat } = useChat();
 
   useEffect(() => {
     loadChats();

@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { formatMessageTime, generateAvatarUrl } from '../../utils/helpers';
 import { HiOutlineDotsVertical, HiOutlineHeart, HiOutlineReply } from 'react-icons/hi';
+import { useAuth } from '../../contexts/AuthContext';
+import { useSocket } from '../../contexts/SocketContext';
+import { messagesAPI } from '../../services/api';
 
 const MessageReactions = ({ reactions, onAddReaction, onRemoveReaction, currentUserId }) => {
   if (!reactions || reactions.length === 0) return null;
@@ -120,26 +123,32 @@ const MessageContent = ({ message }) => {
   }
 };
 
-const MessageItem = ({ 
-  message, 
-  isOwn, 
-  showAvatar = true, 
+const MessageItem = ({
+  message,
+  isOwn,
+  showAvatar = true,
   showSender = false,
   isFirstInGroup = false,
-  isLastInGroup = false 
+  isLastInGroup = false
 }) => {
+  const { user } = useAuth();
+  const { socket } = useSocket();
   const [showActions, setShowActions] = useState(false);
   const [showReactionPicker, setShowReactionPicker] = useState(false);
 
   const handleReaction = (emoji) => {
-    // TODO: Implement reaction functionality
-    console.log('Add reaction:', emoji);
+    if (socket) {
+      socket.emit('addReaction', { messageId: message._id, emoji });
+    }
     setShowReactionPicker(false);
   };
 
-  const handleRemoveReaction = () => {
-    // TODO: Implement remove reaction functionality
-    console.log('Remove reaction');
+  const handleRemoveReaction = async () => {
+    try {
+      await messagesAPI.removeReaction(message._id);
+    } catch (error) {
+      console.error('Failed to remove reaction:', error);
+    }
   };
 
   const messageTime = formatMessageTime(message.createdAt);
@@ -217,7 +226,7 @@ const MessageItem = ({
             reactions={message.reactions}
             onAddReaction={handleReaction}
             onRemoveReaction={handleRemoveReaction}
-            currentUserId="current-user-id" // TODO: Get from auth context
+            currentUserId={user?._id}
           />
 
           {/* Action buttons */}

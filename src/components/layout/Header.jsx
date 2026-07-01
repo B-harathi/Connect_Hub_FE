@@ -9,8 +9,7 @@ import {
 } from 'react-icons/hi';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
-import { useChat } from '../../contexts/ChatContext';
-import { generateAvatarUrl, getChatDisplayName, getChatDisplayAvatar } from '../../utils/helpers';
+import { generateAvatarUrl } from '../../utils/helpers';
 
 const Header = ({ 
   onToggleSidebar, 
@@ -21,7 +20,6 @@ const Header = ({
   suggestionsOpen 
 }) => {
   const { user, logout } = useAuth();
-  const { currentChat } = useChat();
   const [searchQuery, setSearchQuery] = useState('');
   const [showUserMenu, setShowUserMenu] = useState(false);
 
@@ -55,32 +53,6 @@ const Header = ({
             Chat ONN
           </div>
         </div>
-
-        {/* Current chat info */}
-        {currentChat && (
-          <div className="hidden lg:flex items-center space-x-3">
-            <img
-              src={getChatDisplayAvatar(currentChat, user) || generateAvatarUrl(getChatDisplayName(currentChat, user))}
-              alt={getChatDisplayName(currentChat, user)}
-              className="h-10 w-10 rounded-full ring-2 ring-white dark:ring-gray-800"
-            />
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                {getChatDisplayName(currentChat, user)}
-              </h2>
-              {currentChat.chatType === 'private' && (
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {currentChat.participants?.find(p => p._id !== user._id)?.isOnline ? 'Online' : 'Offline'}
-                </p>
-              )}
-              {currentChat.chatType === 'group' && (
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {currentChat.participants?.length} members
-                </p>
-              )}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Center section - Search */}

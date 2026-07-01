@@ -2,7 +2,7 @@ import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { chatsAPI, messagesAPI } from '../services/api';
 import { useAuth } from './AuthContext';
 import { useSocket } from './SocketContext';
-import { LOADING_STATES, MESSAGE_TYPES } from '../utils/constants';
+import { LOADING_STATES } from '../utils/constants';
 import { sortBy } from '../utils/helpers';
 import toast from 'react-hot-toast';
 import { generateRandomId } from '../utils/helpers';
@@ -225,7 +225,7 @@ export const ChatProvider = ({ children }) => {
     // Handle new messages
     const handleNewMessage = (data) => {
       dispatch({ type: CHAT_ACTIONS.ADD_MESSAGE, payload: data.message });
-      
+
       // Show notification if not in current chat
       if (state.currentChat?._id !== data.message.chat) {
         toast.success(`New message from ${data.message.sender.name}`);
@@ -234,8 +234,8 @@ export const ChatProvider = ({ children }) => {
 
     // Handle message updates
     const handleMessageEdited = (data) => {
-      dispatch({ 
-        type: CHAT_ACTIONS.UPDATE_MESSAGE, 
+      dispatch({
+        type: CHAT_ACTIONS.UPDATE_MESSAGE,
         payload: {
           _id: data.messageId,
           content: data.newContent,
@@ -248,6 +248,50 @@ export const ChatProvider = ({ children }) => {
     // Handle message deletion
     const handleMessageDeleted = (data) => {
       dispatch({ type: CHAT_ACTIONS.DELETE_MESSAGE, payload: data.messageId });
+    };
+
+    // Handle reaction added
+    const handleReactionAdded = (data) => {
+      const { messageId, reaction } = data;
+      // Find the message and update its reactions
+      const message = state.messages.find(m => m._id === messageId);
+      if (message) {
+        // Check if user already reacted with a different emoji - remove old reaction first
+        const existingReactions = message.reactions || [];
+        const userReactedIndex = existingReactions.findIndex(
+          r => r.user && r.user._id === user?._id
+        );
+
+        let updatedReactions;
+        if (userReactedIndex >= 0) {
+          // User already reacted - replace the emoji
+          updatedReactions = [...existingReactions];
+          updatedReactions[userReactedIndex] = reaction;
+        } else {
+          // New reaction
+          updatedReactions = [...existingReactions, reaction];
+        }
+
+        dispatch({
+          type: CHAT_ACTIONS.UPDATE_MESSAGE,
+          payload: { _id: messageId, reactions: updatedReactions }
+        });
+      }
+    };
+
+    // Handle reaction removed
+    const handleReactionRemoved = (data) => {
+      const { messageId, userId } = data;
+      const message = state.messages.find(m => m._id === messageId);
+      if (message) {
+        const updatedReactions = (message.reactions || []).filter(
+          r => !(r.user && r.user._id === userId)
+        );
+        dispatch({
+          type: CHAT_ACTIONS.UPDATE_MESSAGE,
+          payload: { _id: messageId, reactions: updatedReactions }
+        });
+      }
     };
 
     // Handle typing indicators
@@ -298,6 +342,8 @@ export const ChatProvider = ({ children }) => {
     socket.on('newMessage', handleNewMessage);
     socket.on('messageEdited', handleMessageEdited);
     socket.on('messageDeleted', handleMessageDeleted);
+    socket.on('reactionAdded', handleReactionAdded);
+    socket.on('reactionRemoved', handleReactionRemoved);
     socket.on('userTyping', handleUserTyping);
     socket.on('userStoppedTyping', handleUserStoppedTyping);
     socket.on('userOnline', handleUserOnline);
@@ -308,12 +354,14 @@ export const ChatProvider = ({ children }) => {
       socket.off('newMessage', handleNewMessage);
       socket.off('messageEdited', handleMessageEdited);
       socket.off('messageDeleted', handleMessageDeleted);
+      socket.off('reactionAdded', handleReactionAdded);
+      socket.off('reactionRemoved', handleReactionRemoved);
       socket.off('userTyping', handleUserTyping);
       socket.off('userStoppedTyping', handleUserStoppedTyping);
       socket.off('userOnline', handleUserOnline);
       socket.off('userOffline', handleUserOffline);
     };
-  }, [socket, isConnected, state.currentChat, state.onlineUsers, user]);
+  }, [socket, isConnected, state.currentChat, state.onlineUsers, state.messages, user]);
 
   // Load chats
   const loadChats = async () => {

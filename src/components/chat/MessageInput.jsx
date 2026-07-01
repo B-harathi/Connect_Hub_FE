@@ -14,8 +14,8 @@ const MessageInput = () => {
   const [showFileUpload, setShowFileUpload] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  
-  const { sendMessage, currentChat, sendTypingIndicator } = useChat();
+
+  const { sendMessage, currentChat, sendTypingIndicator, sendFile } = useChat();
   const { isConnected } = useSocket();
   
   const textareaRef = useRef(null);
@@ -129,9 +129,11 @@ const MessageInput = () => {
         {showFileUpload && (
           <FileUpload
             onClose={() => setShowFileUpload(false)}
-            onUpload={(files) => {
-              // TODO: Handle file upload
-              console.log('Upload files:', files);
+            onUpload={async (files) => {
+              // Send each file through the chat context
+              for (const file of files) {
+                await sendFile(file);
+              }
               setShowFileUpload(false);
             }}
           />

@@ -229,7 +229,7 @@ export const DEFAULTS = {
   TOAST_DURATION: 3000,
 };
 
-export default {
+const constants = {
   API_BASE_URL,
   SOCKET_URL,
   STORAGE_KEYS,
@@ -254,3 +254,5 @@ export default {
   FEATURES,
   DEFAULTS,
 };
+
+export default constants;

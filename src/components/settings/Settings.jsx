@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  HiOutlineBell, 
-  HiOutlineMoon, 
-  HiOutlineSun, 
+import {
+  HiOutlineMoon,
+  HiOutlineSun,
   HiOutlineDesktopComputer,
   HiOutlineLockClosed,
   HiOutlineTrash,

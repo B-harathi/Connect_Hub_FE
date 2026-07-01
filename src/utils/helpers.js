@@ -423,7 +423,7 @@ export const isTouchDevice = () => {
   return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 };
 
-export default {
+const helpers = {
   // Local Storage
   getStoredToken,
   setStoredToken,
@@ -433,39 +433,39 @@ export default {
   removeStoredUser,
   getStoredTheme,
   setStoredTheme,
-  
+
   // Date/Time
   formatMessageTime,
   formatChatTime,
   formatRelativeTime,
   getTimeAgo,
-  
+
   // String
   truncateText,
   capitalizeFirst,
   getInitials,
   generateAvatarUrl,
-  
+
   // Validation
   validateEmail,
   validatePassword,
   validateRequired,
-  
+
   // File
   formatFileSize,
   isValidFileType,
   isValidFileSize,
   getFileIcon,
-  
+
   // Chat
   getChatDisplayName,
   getChatDisplayAvatar,
   getLastMessagePreview,
-  
+
   // User
   isUserOnline,
   getUserStatusText,
-  
+
   // Utility
   debounce,
   throttle,
@@ -475,17 +475,19 @@ export default {
   isEmpty,
   groupBy,
   sortBy,
-  
+
   // Theme
   applyTheme,
   getSystemTheme,
-  
+
   // Error
   getErrorMessage,
-  
+
   // Platform
   isMobile,
   isIOS,
   isAndroid,
   isTouchDevice,
 };
+
+export default helpers;
